@@ -14,5 +14,7 @@ For example, run the following in this Repo's directory:
 
 ### Dependencies
 rlwrap
+
 ncat
+
 pwsh (Installation instructions available here https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.4)
