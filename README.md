@@ -1,5 +1,5 @@
 # artemis-hunter
-Too lazy to keep typing out the same Reverse shells, or to write a simple shell script to generate them for you?
+Too lazy to keep typing out the same payloads, or to write a simple shell script to generate them for you?
 
 Well then this is the tool suite for you!
 
