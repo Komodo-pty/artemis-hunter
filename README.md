@@ -1,5 +1,12 @@
 # artemis-hunter
-Artemis helps you generate reverse shells in various languages for Linux or Windows targets, provides tips for stabilizing the shell, and spawns a listener for you.
+Too lazy to keep typing out the same reverse shells, or to write a simple shell script to generate them for you?
+
+Well then this is the tool suite for you!
+
+Artemis helps Pentesters hunt for reverse shells.
+
+## Functionality
+Artemis generates payloads in various languages for Linux or Windows targets, provides tips for stabilizing the shell, and spawns a listener for you.
 
 If no arguments are specified, Artemis will run in interactive mode. For a list of supported arguments, run `artemis -h`
 
