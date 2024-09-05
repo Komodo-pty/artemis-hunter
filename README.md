@@ -3,7 +3,7 @@ Too lazy to keep typing out the same reverse shells, or to write a simple shell 
 
 Well then this is the tool suite for you!
 
-Artemis helps Pentesters hunt for reverse shells.
+Artemis helps Pentesters hunt for Web shells and Reverse shells.
 
 ## Functionality
 Artemis generates payloads in various languages for Linux or Windows targets, provides tips for stabilizing the shell, and spawns a listener for you.
