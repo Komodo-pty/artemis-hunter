@@ -26,3 +26,10 @@ ncat
 
 pwsh
 (Installation instructions: https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.4)
+
+# Related Projects
+Check out the rest of the Pentesting Pantheon:
+
+Perform recon to see everything your target is hiding with Argus (https://github.com/Komodo-pty/argus-recon/)
+
+Prepare your next attack with Ares (https://github.com/Komodo-pty/ares-attack)
