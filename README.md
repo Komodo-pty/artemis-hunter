@@ -3,12 +3,22 @@ Too lazy to keep typing out the same payloads, or to write a simple shell script
 
 Well then this is the tool suite for you!
 
-Artemis helps Pentesters hunt for Web shells and Reverse shells.
+Artemis helps Pentesters hunt for Reverse shells and AD Lateral Movement Vectors.
 
 ## Functionality
 Artemis generates payloads in various languages for Linux or Windows targets, provides tips for stabilizing the shell, and spawns a listener for you.
 
+Artemis will instead output commands for AD Lateral Movement if you use `artemis -a`
+
 If no arguments are specified, Artemis will run in interactive mode. For a list of supported arguments, run `artemis -h`
+
+### Reverse shell Payloads
+[ps] Powershell
+[bash]
+[nc] Netcat (*nix targets)
+[java]
+[py] Python (*nix targets)
+[php] (*nix targets)
 
 ## Setup
 After installing the dependencies, give `artemis.sh` permission to execute & create a symbolic link in your PATH.
