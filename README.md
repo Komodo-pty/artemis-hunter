@@ -14,10 +14,15 @@ If no arguments are specified, Artemis will run in interactive mode. For a list 
 
 ### Reverse shell Payloads
 [ps] Powershell
+
 [bash]
+
 [nc] Netcat (*nix targets)
+
 [java]
+
 [py] Python (*nix targets)
+
 [php] (*nix targets)
 
 ## Setup
