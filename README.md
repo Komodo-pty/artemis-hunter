@@ -1,9 +1,5 @@
 # artemis-hunter
-Too lazy to keep typing out the same payloads, or to write a simple shell script to generate them for you?
-
-Well then this is the tool suite for you!
-
-Artemis helps Pentesters hunt for Reverse shells and AD Lateral Movement Vectors.
+Artemis helps Pentesters hunt for Reverse shells and Active Directory Lateral Movement Vectors.
 
 ## Functionality
 Artemis generates payloads in various languages for Linux or Windows targets, provides tips for stabilizing the shell, and spawns a listener for you.
