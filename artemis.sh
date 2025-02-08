@@ -12,7 +12,7 @@ Help()
 	echo -e "-l: Start a listener using specified interface and port (Don't use this option if you are starting a listener manually)\n\n"
 	echo -e "-t <Target_OS>: Specify the target OS for Web shell payloads & for stabilization tips [win/nix]\n\n"
 	echo -e "-s <Payload_Type>: Specify the type of Reverse shell to generate (Refer to the Payloads section for a list of accepted arguments)\n$line"
-	echo -e "[Example Syntax]\n\nReverse Shell: artemis -i 10.10.144.68 -p 443 -s ps -t nix -l\n\nAD Pivoting: artemis -a\n$line"	
+	echo -e "[Example Syntax]\n\nReverse Shell: artemis -i 10.10.144.68 -p 443 -s php -t nix -l\n\nAD Pivoting: artemis -a\n$line"	
 	echo -e "Payloads:\n\n[ps] Powershell\n[bash]\n[nc] Netcat (*nix targets)\n[java]\n[py] Python (*nix targets)\n[php] (*nix targets)"
 	echo -e "[node] Node.js (*nix targets)\n\n"
 	echo -e "[!] Tip: If you're having trouble catching a shell, try the following steps-\n\n1) Double check your firewall settings & verify target's IP Address\n"
