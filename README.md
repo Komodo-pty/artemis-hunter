@@ -44,3 +44,5 @@ Check out the rest of the Pentesting Pantheon:
 Perform recon to see everything your target is hiding with Argus (https://github.com/Komodo-pty/argus-recon/)
 
 Prepare your next attack with Ares (https://github.com/Komodo-pty/ares-attack)
+
+Perform Post-Exploitation enumeration against Windows hosts with Hades (https://github.com/Komodo-pty/hades-PrivEsc)
