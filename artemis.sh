@@ -279,7 +279,7 @@ elif [ "$target" == "nix" ]
 then
 	echo -e "\n\n{Manually Stabilizing a Linux Shell}\n"
 	echo -e "1) Identify SW on target:\n\nwhich python python2 python3 ruby perl lua\n"
-	echo -e "2) Example Commands:\n\npython3 -c 'import pty; pty.spawn(\"/bin/bash\")'\n"
+	echo -e "2) Example Commands:\n\npython3 -c 'import pty;pty.spawn(\"/bin/bash\")'\n"
 	echo -e "perl -e 'exec \"/bin/sh\";'\nruby -e 'exec \"/bin/sh\"'\nlua -e \"os.execute('/bin/sh')\"\n"
 	echo -e "3) Set Shell Type:\nexport SHELL=bash\n\n"
 	echo -e "4) Set Terminal Type:\nexport TERM=xterm-256color\n\n"
