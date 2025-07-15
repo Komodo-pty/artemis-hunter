@@ -1,5 +1,5 @@
 # artemis-hunter
-Artemis helps Pentesters hunt for Reverse shells and Active Directory Lateral Movement Vectors.
+Artemis helps Pentesters hunt for reverse shells and Active Directory Lateral Movement vectors.
 
 ## Functionality
 Artemis generates payloads in various languages for Linux or Windows targets, provides tips for stabilizing the shell, and spawns a listener for you.
@@ -9,7 +9,7 @@ Artemis will instead output commands for AD Lateral Movement if you use `artemis
 If no arguments are specified, Artemis will run in interactive mode. For a list of supported arguments, run `artemis -h`
 
 ### Reverse shell Payloads
-[ps] Powershell
+[ps] PowerShell
 
 [bash]
 
