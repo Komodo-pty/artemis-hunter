@@ -90,6 +90,9 @@ Output commands for lateral movement in an Active Directory environment.
 [Options]
 	-h: Show this help message
 	-x <METHOD>: Specify the pivoting method
+	-u <USERNAME>: The target account (unqualified username)
+	-p <PASSWORD>: The target's password
+	-n <NTLM>: The target's NTLM hash [psexec - OPtH]
 
 [Methods]
 	wmi

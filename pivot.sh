@@ -4,13 +4,25 @@ line="============================================================"
 user=""
 passwd=""
 method=""
+opth=""
+ntlm=""
 
 Creds()
 {
-  echo -e "\nEnter the target account's username without the Hostname (e.g. bob):\n"
-  read user
-  echo -e "\nEnter the target account's password:\n"
-  read passwd
+  if [[ -z "$user" ]]; then
+    echo -e "\nEnter the unqualified username (e.g., bob):\n"
+    read user
+  fi
+
+  if [[ "$opth" != "2" && -z "$passwd" ]]; then
+    echo -e "\nEnter the target account's password:\n"
+    read passwd
+  fi
+
+  if [[ "$opth" == "2" && -z "$ntlm" ]]; then
+    echo -e "\nEnter the target account's NTLM Hash:\n"
+    read ntlm
+  fi
 }
 
 Help()
@@ -20,6 +32,9 @@ cat <<EOF
 [Options]
 	-h: Show this help message
 	-x <METHOD>: Specify the pivoting method
+	-u <USERNAME>: The target account (unqualified username)
+	-p <PASSWORD>: The target's password
+	-n <NTLM>: The target's NTLM hash [psexec - OPtH]
 
 [Methods]
 	wmi
@@ -27,11 +42,15 @@ cat <<EOF
 	dcom
 	psexec
 
+[Usage]
+	artemis -m pivot -x winrm -u bob -p 'password123!'
+	artemis -m pivot -x dcom
+
 EOF
 exit 0
 }
 
-while getopts ":hx:" option; do
+while getopts "hx:u:p:n:" option; do
   case $option in
     h)
       Help
@@ -39,13 +58,23 @@ while getopts ":hx:" option; do
     x)
       method="$OPTARG"
       ;;
+    u)
+      user="$OPTARG"
+      ;;
+    p)
+      passwd="$OPTARG"
+      ;;
+    n)
+      ntlm="$OPTARG"
+      ;;
   esac
 done
 
 if [[ -z "$method" ]]; then
   cat <<EOF
-[!] Tip: When pivoting between hosts in the same subnet, you can often use the target's IP Address & their Hostname interchangeably.
-HOWEVER, this isn't always the case (i.e., When using Sysinternals PSExec without passing credentials). If you're having trouble connecting with one of these, try using the other.
+You can't always use the target's IP Address & Hostname interchangeably when pivoting between hosts in the same subnet (i.e., When using Sysinternals PSExec without passing credentials)
+
+If you're having trouble connecting with one of these, try using the other
 
 Select a method:
 	[1] WMI
@@ -60,8 +89,8 @@ case $method in
   wmi|1)
     echo -e "\nSpecify the target's IP Address\n"
     read target
-    Creds
-
+    Creds 
+   
     cat <<EOF
 $line
 
@@ -163,8 +192,8 @@ Select an option:
 	[1] Use a Password
 	[2] Use an NTLM Hash (OPtH Attack)
 EOF
-  read opt
-  if [[ "$opt" == "1" ]]; then
+  read opth
+  if [[ "$opth" == "1" ]]; then
     echo -e "\nEnter the target's IP Address:\n"
     read target
     echo -e "\nEnter the Domain (e.g.for xample.com, use xample):\n"
@@ -187,16 +216,13 @@ $line
 $line
 EOF
 
-  elif [[ "$opt" == 2 ]]; then
+  elif [[ "$opth" == "2" ]]; then
     echo -e "\nEnter the target's Hostname for an OPtH Attack (NOT the IP Address):\n"
     read target
 		
-    echo -e "\nEnter the target account's username:\n"
-    read user
     echo -e "\nEnter the Domain name (e.g. xample.com):\n"
     read dom
-    echo -e "\nEnter the target account's NTLM Hash:\n"
-    read ntlm
+    Creds
 
     cat <<EOF
 $line
