@@ -2,7 +2,7 @@
 
 #To-DO: Add Ruby & Perl payloads
 line="============================================================"
-listen=""
+listen="false"
 
 Help()
 {
@@ -65,7 +65,7 @@ while getopts "hi:p:ls:t:" option; do
       port="$OPTARG"
       ;;
     l)
-      listen="1"
+      listen="true"
       ;;
     s)
       shell="$OPTARG"
@@ -358,6 +358,6 @@ esac
 
 echo -e "\n$line\n"
 
-if [[ "$listen" == "1" ]]; then
+if [[ "$listen" == "true" ]]; then
   rlwrap ncat -lvnp "$port"
 fi

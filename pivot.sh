@@ -4,7 +4,7 @@ line="============================================================"
 user=""
 passwd=""
 method=""
-opth=""
+opth="false"
 ntlm=""
 
 Creds()
@@ -14,12 +14,12 @@ Creds()
     read user
   fi
 
-  if [[ "$opth" != "2" && -z "$passwd" ]]; then
+  if [[ "$opth" == "false" && -z "$passwd" ]]; then
     echo -e "\nEnter the target account's password:\n"
     read passwd
   fi
 
-  if [[ "$opth" == "2" && -z "$ntlm" ]]; then
+  if [[ "$opth" == "true" && -z "$ntlm" ]]; then
     echo -e "\nEnter the target account's NTLM Hash:\n"
     read ntlm
   fi
@@ -194,6 +194,7 @@ Select an option:
 EOF
   read opth
   if [[ "$opth" == "1" ]]; then
+    opth="false"
     echo -e "\nEnter the target's IP Address:\n"
     read target
     echo -e "\nEnter the Domain (e.g.for xample.com, use xample):\n"
@@ -217,6 +218,7 @@ $line
 EOF
 
   elif [[ "$opth" == "2" ]]; then
+    opth="true"
     echo -e "\nEnter the target's Hostname for an OPtH Attack (NOT the IP Address):\n"
     read target
 		
